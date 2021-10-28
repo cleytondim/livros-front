@@ -1,0 +1,317 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"> 
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:h="http://java.sun.com/jsf/html"> 
+
+	<h:head>
+		<title>Gerenciador de Livros - KBASE</title>
+	</h:head> 
+	<body> 
+	
+	<h:form>
+		<div><h:graphicImage value="/resources/images/logo.png" /></div>
+	    	<div>
+	        <h2 class="p-mt-0">GERENCIAMENTO DE LIVROS</h2>
+	        </div>
+        </h:form>
+        
+        
+        
+        <h:form id="form">
+		    <div class="card crud-demo">
+		        <p:growl id="messages" showDetail="true"/>
+		        
+		        <p:toolbar>
+		            <p:toolbarGroup>
+		            	<p:commandButton value="Atualizar a Biblioteca" icon="pi pi-book" actionListener="#{livrosMBean.openBiblioteca}"
+		                                 update=":form:dt-livros"
+		                                 styleClass="ui-button-success" style="margin-right: .5rem">
+		                    <p:resetInput target=":form:dt-livros"/>
+		                </p:commandButton>
+		                <p:commandButton value="Cadastrar" icon="pi pi-plus" actionListener="#{livrosMBean.openNew}" immediate="true"
+		                                 update=":form:manage-book-content" oncomplete="PF('manageBookDialog').show()"
+		                                 styleClass="ui-button-success" style="margin-right: .5rem">
+		                    <p:resetInput target=":form:manage-book-content"/>
+		                </p:commandButton>
+		                <p:commandButton value="Buscar por ISBN" icon="pi pi-search" 
+		                                 update=":form:find-book-isbn" oncomplete="PF('findBookIsbn').show()"
+		                                 styleClass="ui-button-success" style="margin-right: .5rem">
+		                    <p:resetInput target=":form:find-book-isbn"/>
+		                </p:commandButton>
+		                <p:commandButton value="Buscar por Autor" icon="pi pi-search"
+		                                 update=":form:find-book-autor" oncomplete="PF('findBookAutor').show()"
+		                                 styleClass="ui-button-success" style="margin-right: .5rem">
+		                    <p:resetInput target=":form:find-book-autor"/>
+		                </p:commandButton>
+		            </p:toolbarGroup>
+		        </p:toolbar>
+		        
+		        <p:dataTable id="dt-livros" widgetVar="dtLivros" var="livro" value="#{livrosMBean.livros}"
+                     reflow="true" styleClass="products-table" rowKey="#{livro.isbn}" paginator="true"
+                     rows="25" paginatorPosition="bottom">
+		            <f:facet name="header">
+		                <div class="books-table-header">
+		                    <span style="font-weight: bold">LIVROS</span>
+		                </div>
+		            </f:facet>
+		           
+		            <p:column headerText="ISBN" sortBy="#{livro.isbn}">
+		                <h:outputText value="#{livro.isbn}"/>
+		            </p:column>
+		            <p:column headerText="Titulo" sortBy="#{livro.titulo}" >
+		                <h:outputText value="#{livro.titulo}"/>
+		            </p:column>
+		            <p:column headerText="Autores" sortBy="#{livro.nomeAutores}" >
+		                <ui:repeat var="autor"  value="#{livro.autores}">
+							- <h:outputText value="#{autor.nome}"/><br/>
+						</ui:repeat>
+		            </p:column>
+		            
+		           <p:column headerText="Editora" sortBy="#{livro.editora}" >
+		                <h:outputText value="#{livro.editora}"/>
+		            </p:column>
+		            
+		            <p:column headerText="Data" sortBy="#{livro.datalancamento}">
+		                <h:outputText value="#{livro.datalancamento}"/>
+		            </p:column>
+		            
+		            <p:column headerText="Preco">
+		                <h:outputText value="#{livro.precoReaisExtenso}"/>
+		            </p:column>
+		            
+		            <p:column headerText="Criticas">
+		                <ui:repeat var="critica"  value="#{livro.criticas}">
+							- <h:outputText value="#{critica.critica}"/><br/>
+						</ui:repeat>
+		            </p:column>
+
+		            <p:column exportable="false">
+		                <p:commandButton icon="pi pi-pencil" update=":form:manage-book-content-edit"
+		                                 oncomplete="PF('manageBookDialogEdit').show()"
+		                                 styleClass="edit-button rounded-button ui-button-success" process="@this" action="#{livrosMBean.openAtualiza()}" immediate="true">
+		                    <f:setPropertyActionListener value="#{livro}" target="#{livrosMBean.livro}"/>
+		                    <p:resetInput target=":form:manage-book-content-edit"/>
+		                </p:commandButton>
+		                <p:commandButton class="ui-button-warning rounded-button" icon="pi pi-trash" process="@this"
+		                                 oncomplete="PF('deleteBookDialog').show()">
+		                    <f:setPropertyActionListener value="#{livro}" target="#{livrosMBean.livro}"/>
+		                </p:commandButton>
+		            </p:column>
+		
+		        </p:dataTable>
+        
+        
+        	<p:dialog header="Detalhes do Livro" showEffect="fade" modal="true"
+                  widgetVar="manageBookDialog" responsive="true">
+            <p:outputPanel id="manage-book-content" class="ui-fluid">
+                <p:outputPanel rendered="#{not empty livrosMBean.livro}">
+                    <div class="p-field">
+                        <p:outputLabel for="isbn">ISBN</p:outputLabel>
+                        <p:inputText id="isbn" value="#{livrosMBean.livro.isbn}" required="true"/>
+                    </div>
+                    <br/>
+                    <div class="p-field">
+                        <p:outputLabel for="titulo">Titulo</p:outputLabel>
+                        <p:inputText id="titulo" value="#{livrosMBean.livro.titulo}" required="true"/>
+                    </div>
+                    <br/>
+                    <div class="p-field" id="pn-autores">
+                       	<p:outputLabel for="lt-autores">Autores</p:outputLabel> - 
+        				<p:commandLink id="ajax" update="lt-autores" style="margin-right:20px;" actionListener="#{livrosMBean.openNewAutores}" oncomplete="PF('addAutorDialog').show()">
+	            			<h:outputText value="Adicionar"/>
+	        			</p:commandLink><br/>
+	        			<ui:repeat id="lt-autores" var="autor"  value="#{livrosMBean.autorestemp}">
+							- <h:outputText value="#{autor.nome}"/><p:commandButton icon="pi pi-times" 
+							styleClass="rounded-button ui-button-danger ui-button-flat" 
+							action="#{livrosMBean.removerAutorTemporario}"
+	                             process="lt-autores @this" update="form:manage-book-content" immediate="true">
+	                             	<f:setPropertyActionListener value="#{autor}" target="#{livrosMBean.autortemp}"/>
+	                             </p:commandButton><br/>
+						</ui:repeat>
+                    </div>
+                    <br/>
+                  	<div class="p-field">
+                        <p:outputLabel for="editora">Editora</p:outputLabel>
+                        <p:inputText id="editora" value="#{livrosMBean.livro.editora}" required="true"/>
+                    </div>
+                  	<br/>
+                  	<div class="p-field">
+                        <p:outputLabel for="data">Data de Lancamento</p:outputLabel>
+                        <p:calendar id="data" value="#{livrosMBean.datatemp}" 
+								pattern="yyyy-MM-dd" tabindex="3" navigator="true"
+								required="true" maxdate="a" readonlyInput="true"/>
+                    </div>
+                  	<br/>
+                    <div class="p-formgrid p-grid">
+                        <div class="p-field p-col">
+                            <p:outputLabel for="price">Preco</p:outputLabel>
+                            <p:inputNumber id="price" value="#{livrosMBean.livro.preco}"
+                                           symbol=" R$" symbolPosition="s"
+                                           decimalSeparator="," thousandSeparator="."/>
+                        </div>
+                    </div>
+                    <br/>
+                    <div class="p-field" id="pn-criticas">
+                       	<p:outputLabel for="lt-criticas">Criticas</p:outputLabel> - 
+        				<p:commandLink id="ajax2" update="lt-criticas" style="margin-right:20px;" actionListener="#{livrosMBean.openNewCriticas}" oncomplete="PF('addCriticaDialog').show()">
+	            			<h:outputText value="Adicionar"/>
+	        			</p:commandLink><br/>
+	        			<ui:repeat id="lt-criticas" var="critica"  value="#{livrosMBean.criticastemp}">
+							- <h:outputText value="#{critica.critica}"/><p:commandButton icon="pi pi-times" 
+							styleClass="rounded-button ui-button-danger ui-button-flat" 
+							action="#{livrosMBean.removerCriticaTemporaria}"
+	                             process="lt-criticas @this" update="form:manage-book-content" immediate="true">
+	                             	<f:setPropertyActionListener value="#{critica}" target="#{livrosMBean.criticatemp}"/>
+	                             </p:commandButton><br/>
+						</ui:repeat>
+                    </div>
+                    <br/>
+                    <br/>
+	                </p:outputPanel>
+	            </p:outputPanel>
+	            <f:facet name="footer">
+	                <p:commandButton value="Cadastrar" icon="pi pi-check" actionListener="#{livrosMBean.cadastraLivro}"
+	                                 update="manage-book-content" process="manage-book-content @this"/>
+	                <p:commandButton value="Cancelar" icon="pi pi-times" onclick="PF('manageBookDialog').hide()"
+	                                 class="ui-button-secondary" process="@this" action="{livrosMBean.openNew}" immediate="true"/>
+	            </f:facet>
+	        </p:dialog>
+	        
+	        
+	        
+	        <p:dialog header="Detalhes do Livro" showEffect="fade" modal="true"
+                  widgetVar="manageBookDialogEdit" responsive="true">
+            <p:outputPanel id="manage-book-content-edit" class="ui-fluid">
+                <p:outputPanel rendered="#{not empty livrosMBean.livro}">
+                    <div class="p-field">
+                        <p:outputLabel for="isbn">ISBN</p:outputLabel>
+                        <p:inputText disabled="true" readonly="true" id="isbne" value="#{livrosMBean.livro.isbn}" required="true"/>
+                    </div>
+                    <br/>
+                    <div class="p-field">
+                        <p:outputLabel for="titulo">Titulo</p:outputLabel>
+                        <p:inputText id="tituloe" value="#{livrosMBean.livro.titulo}" required="true"/>
+                    </div>
+                    <br/>
+                    <div class="p-field" id="pn-autorese">
+                       	<p:outputLabel for="lt-autores">Autores</p:outputLabel> - 
+        				<p:commandLink id="ajaxe" update="lt-autorese" style="margin-right:20px;" actionListener="#{livrosMBean.openNewAutores}" oncomplete="PF('addAutorDialog').show()">
+	            			<h:outputText value="Adicionar"/>
+	        			</p:commandLink><br/>
+	        			<ui:repeat id="lt-autorese" var="autor"  value="#{livrosMBean.autorestemp}">
+							- <h:outputText value="#{autor.nome}"/><p:commandButton icon="pi pi-times" 
+							styleClass="rounded-button ui-button-danger ui-button-flat" 
+							action="#{livrosMBean.removerAutorTemporario}"
+	                             process="lt-autorese @this" update="form:manage-book-content-edit" immediate="true">
+	                             	<f:setPropertyActionListener value="#{autor}" target="#{livrosMBean.autortemp}"/>
+	                             </p:commandButton><br/>
+						</ui:repeat>
+                    </div>
+                    <br/>
+                  	<div class="p-field">
+                        <p:outputLabel for="editora">Editora</p:outputLabel>
+                        <p:inputText id="editorae" value="#{livrosMBean.livro.editora}" required="true"/>
+                    </div>
+                  	<br/>
+                  	<div class="p-field">
+                        <p:outputLabel for="data">Data de Lancamento</p:outputLabel>
+                        <p:calendar id="datae" value="#{livrosMBean.datatemp}" 
+								pattern="yyyy-MM-dd" tabindex="3" navigator="true"
+								required="true" maxdate="a" readonlyInput="true"/>
+                    </div>
+                  	<br/>
+                    <div class="p-formgrid p-grid">
+                        <div class="p-field p-col">
+                            <p:outputLabel for="price">Preco</p:outputLabel>
+                            <p:inputNumber id="pricee" value="#{livrosMBean.livro.preco}"
+                                           symbol=" R$" symbolPosition="s"
+                                           decimalSeparator="," thousandSeparator="."/>
+                        </div>
+                    </div>
+                    <br/>
+                    <div class="p-field" id="pn-criticase">
+                       	<p:outputLabel for="lt-criticase">Criticas</p:outputLabel> - 
+        				<p:commandLink id="ajax2e" update="lt-criticase" style="margin-right:20px;" actionListener="#{livrosMBean.openNewCriticas}" oncomplete="PF('addCriticaDialog').show()">
+	            			<h:outputText value="Adicionar"/>
+	        			</p:commandLink><br/>
+	        			<ui:repeat id="lt-criticase" var="critica"  value="#{livrosMBean.criticastemp}">
+							- <h:outputText value="#{critica.critica}"/><p:commandButton icon="pi pi-times" 
+							styleClass="rounded-button ui-button-danger ui-button-flat" 
+							action="#{livrosMBean.removerCriticaTemporaria}"
+	                             process="lt-criticase @this" update="form:manage-book-content-edit" immediate="true">
+	                             	<f:setPropertyActionListener value="#{critica}" target="#{livrosMBean.criticatemp}"/>
+	                             </p:commandButton><br/>
+						</ui:repeat>
+                    </div>
+                    <br/>
+                    <br/>
+	                </p:outputPanel>
+	            </p:outputPanel>
+	            <f:facet name="footer">
+	                <p:commandButton value="Atualizar" icon="pi pi-check" actionListener="#{livrosMBean.atualizaLivro}"
+	                                 update="manage-book-content-edit" process="manage-book-content-edit @this"/>
+	                <p:commandButton value="Cancelar" icon="pi pi-times" onclick="PF('manageBookDialogEdit').hide()"
+	                                 class="ui-button-secondary" process="@this" action="{livrosMBean.openNew}" immediate="true"/>
+	            </f:facet>
+	        </p:dialog>
+	        
+	         <p:confirmDialog id="find-book-isbn" widgetVar="findBookIsbn" showEffect="fade" width="300"
+                         message="Qual o código ISBN do Livro?" header="Buscar Livro - ISBN">
+	            <p:inputText id="inputIsbnSearch" value="#{livrosMBean.isbnSearch}"/>
+	            <p:commandButton value="Buscar" icon="pi pi-check" actionListener="#{livrosMBean.buscarLivroPorIsbn}" 
+	                             process="inputIsbnSearch @this" oncomplete="PF('findBookIsbn').hide()" update="form form:dt-livros"/>
+	            <p:commandButton value="Cancelar" type="button" styleClass="ui-button-secondary" icon="pi pi-times"
+	                             onclick="PF('findBookIsbn').hide()"/>
+	        </p:confirmDialog>
+	        
+	        <p:confirmDialog id="find-book-autor" widgetVar="findBookAutor" showEffect="fade" width="300"
+                         message="Digite parte do nome do autor:" header="Buscar Livro - AUTOR">
+	            <p:inputText id="inputAutorSearch" value="#{livrosMBean.autorSearch}"/>
+	            <p:commandButton value="Buscar" icon="pi pi-check" actionListener="#{livrosMBean.buscarLivroPorAutor}" 
+	                             process="inputAutorSearch @this" oncomplete="PF('findBookAutor').hide()" update="form form:dt-livros"/>
+	            <p:commandButton value="Cancelar" type="button" styleClass="ui-button-secondary" icon="pi pi-times"
+	                             onclick="PF('findBookAutor').hide()"/>
+	        </p:confirmDialog>
+	        
+	        
+	        
+	        <p:confirmDialog widgetVar="deleteBookDialog" showEffect="fade" width="300"
+                         message="Remover o Livro?" header="Confirmação" severity="warn">
+	            <p:commandButton value="Sim" icon="pi pi-check" actionListener="#{livrosMBean.removeLivro}"
+	                             process="@this" oncomplete="PF('deleteBookDialog').hide()"/>
+	            <p:commandButton value="Não" type="button" styleClass="ui-button-secondary" icon="pi pi-times"
+	                             onclick="PF('deleteBookDialog').hide()"/>
+	        </p:confirmDialog>
+	        
+	        
+	     
+             <p:dialog id="input-autor-dialog" header="Inserir Autor" widgetVar="addAutorDialog" minHeight="100" width="350" showEffect="fade">
+        		  <p:inputText id="inputAutor" value="#{livrosMBean.autortemp.nome}"/>
+	            <p:commandButton value="Adicionar" icon="pi pi-check" actionListener="#{livrosMBean.adicionaAutorTemporario}"
+	                             process="inputAutor @this" oncomplete="PF('addAutorDialog').hide()" update="form:manage-book-content form:manage-book-content-edit"/>
+	            <p:commandButton value="Cancelar" type="button" styleClass="ui-button-secondary" icon="pi pi-times"
+	                             onclick="PF('addAutorDialog').hide()"/>
+	        </p:dialog>
+	        
+	         <p:dialog id="input-critica-dialog" header="Inserir Critica" widgetVar="addCriticaDialog" minHeight="120" width="350" showEffect="fade">
+        		  <p:inputTextarea id="inputCritica" value="#{livrosMBean.criticatemp.critica}"/><br/>
+	            <p:commandButton value="Adicionar" icon="pi pi-check" actionListener="#{livrosMBean.adicionaCriticaTemporaria}"
+	                             process="inputCritica @this" oncomplete="PF('addCriticaDialog').hide()" update="form:manage-book-content form:manage-book-content-edit"/>
+	            <p:commandButton value="Cancelar" type="button" styleClass="ui-button-secondary" icon="pi pi-times"
+	                             onclick="PF('addCriticaDialog').hide()"/>
+	        </p:dialog>
+	        
+	        <p:confirmDialog global="true" showEffect="fade" width="300">
+	            <p:commandButton value="Yes" type="button" styleClass="ui-confirmdialog-yes" icon="pi pi-check"/>
+	            <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no ui-button-secondary"
+	                             icon="pi pi-times"/>
+	        </p:confirmDialog>
+	       
+		</div>
+	</h:form>
+        
+      
+	</body> 
+</html>

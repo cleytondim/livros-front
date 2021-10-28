@@ -1,0 +1,39 @@
+body{
+    color:           black;
+    font-size:       12px;
+    font-weight:     bold;
+    font-family:     Arial, Verdana, Serif;
+    text-align:      center;
+    background-color: #87CEEB; 
+}
+
+.espaco {
+	margin: 30px;
+}
+
+.wrapper {
+    width:           100%;
+    overflow:        hidden;
+}
+
+.headerLeft {
+    width:           10%;
+}
+
+.headerRight {
+    width:           90%;
+}
+
+.labelField {
+    font-size:       14px;
+    font-weight:     bold;
+    border:          0px solid white;
+}
+
+.textField {
+    font-size:       12px;
+    font-weight:     normal;
+    border:          0px solid white;
+}
+
+
